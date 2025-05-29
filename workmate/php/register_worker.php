@@ -10,13 +10,22 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 include_once("dbconnect.php");
 
-$name = $_POST['name'];
+$name = $_POST['full_name'];
 $email = $_POST['email'];
 $password = sha1($_POST['password']);
 $phone = $_POST['phone'];
 $address = $_POST['address'];
+$image_base64 = $_POST['image'];
+$image_filename = "";
 
-$sqlinsert = "INSERT INTO `workers`(`full_name`, `email`, `password`, `phone`, `address`) VALUES ('$name','$email','$password','$phone','$address')";
+if ($image_base64 != "") {
+    $image_filename = $email . ".png";
+    $image_path = "../assets/images/" . $image_filename;
+    file_put_contents($image_path, base64_decode($image_base64));
+}
+
+$sqlinsert = "INSERT INTO `workers`(`full_name`, `email`, `password`, `phone`, `address`, `image`)
+VALUES ('$name','$email','$password','$phone','$address','$image_filename')";
 
 try {
     if ($conn->query($sqlinsert) === TRUE) {
@@ -30,7 +39,5 @@ try {
 
 function sendJsonResponse($sentArray) {
     echo json_encode($sentArray);
-    
 }
-
 ?>

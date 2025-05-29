@@ -40,10 +40,12 @@ Widget build(BuildContext context) {
     body: Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF2193b0), Color(0xFF6dd5ed)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+            colors:[
+              const Color.fromARGB(255, 185, 212, 245), 
+              Color.fromARGB(255, 245, 254, 255)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          )
       ),
       child: Center(
         child: SingleChildScrollView(
@@ -239,7 +241,7 @@ void registerUserDialog() {
 
   try {
     final response = await http.post(
-      Uri.parse("${MyConfig.myurl}/wtms/wtms/php/register_worker.php"),
+      Uri.parse("${MyConfig.myurl}/workmate/php/register_worker.php"),
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },

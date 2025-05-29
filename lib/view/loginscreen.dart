@@ -34,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Login Screen"),
-        backgroundColor: const Color.fromARGB(255, 179, 198, 212),
+        backgroundColor: const Color.fromARGB(255, 155, 235, 255),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -160,7 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = true;
     });
 
-    http.post(Uri.parse("${MyConfig.myurl}/wtms/php/login_worker.php"), body: {
+    http.post(Uri.parse("${MyConfig.myurl}/workmate/php/login_worker.php"), body: {
       "email": email,
       "password": password,
     }).then((response) {

@@ -7,7 +7,7 @@ import 'package:workmate/myconfig.dart';
 import 'package:workmate/view/mainscreen.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final User user; // The user data passig the data from login page to main screen page
+  final User user;
 
   const ProfileScreen({super.key, required this.user});
 
@@ -16,13 +16,12 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // Controllers to manage text field input of user
   late TextEditingController fullNameController;
   late TextEditingController emailController;
   late TextEditingController phoneController;
   late TextEditingController addressController;
 
- @override
+  @override
   void initState() {
     super.initState();
     fullNameController = TextEditingController(text: widget.user.userName);
@@ -40,7 +39,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
-              // Logs out the user and navigates to login screen
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (_) => LoginScreen(user: widget.user)),
@@ -52,7 +50,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        color: const Color(0xFFF4F6F7), // Light background color
+        color: const Color(0xFFF4F6F7),
         padding: const EdgeInsets.all(20.0),
         child: Card(
           elevation: 5,
@@ -64,7 +62,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 const CircleAvatar(
                   radius: 50,
-                  backgroundImage: AssetImage("assets/images/profile.png"), // Profile image placeholder
+                  backgroundImage: AssetImage("assets/images/profile.png"),
                 ),
                 const SizedBox(height: 20),
                 TextField(
@@ -74,7 +72,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 10),
                 TextField(
                   controller: emailController,
-                  readOnly: true, // Email is not editable
+                  readOnly: true,
                   decoration: const InputDecoration(labelText: "Email"),
                 ),
                 const SizedBox(height: 10),
@@ -89,9 +87,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: updateProfile, // Calls function to update profile
+                  onPressed: updateProfile,
                   child: const Text("Update Profile"),
-                )
+                ),
               ],
             ),
           ),
@@ -100,13 +98,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // Sends updated profile information to the backend
   void updateProfile() async {
     try {
       final response = await http.post(
-        Uri.parse("${MyConfig.myurl}/wtms/php/update_worker.php"),
+        Uri.parse("${MyConfig.myurl}/workmate/php/update_worker.php"),
         body: {
-          "id": widget.user.userId,
+          "email": emailController.text, // Use email to identify the user
           "full_name": fullNameController.text,
           "phone": phoneController.text,
           "address": addressController.text,
@@ -117,6 +114,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final jsondata = jsonDecode(response.body);
 
         if (jsondata['status'] == 'success') {
+          // Use the returned worker_id or fallback to current one
+          String updatedWorkerId = jsondata['worker_id'] ?? widget.user.userId;
+
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Profile updated successfully")),
           );
@@ -126,7 +126,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             MaterialPageRoute(
               builder: (context) => MainScreen(
                 user: User(
-                  userId: widget.user.userId,
+                  userId: updatedWorkerId,
                   userName: fullNameController.text,
                   userEmail: widget.user.userEmail,
                   userPassword: widget.user.userPassword,

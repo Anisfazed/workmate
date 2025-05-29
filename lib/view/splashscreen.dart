@@ -17,7 +17,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 3), () {
       loadUserCredentials();
     });
   }
@@ -41,7 +41,7 @@ class _SplashScreenState extends State<SplashScreen> {
             children: [
               Image.asset("assets/images/logo.png", scale: 3.5),
               const CircularProgressIndicator(
-                backgroundColor: Colors.white,
+                backgroundColor: Color.fromARGB(255, 0, 0, 0),
                 valueColor: AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 255, 255, 255)),
               )
             ],
@@ -58,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen> {
     bool rem = prefs.getBool('remember') ?? false;
 
     if (rem == true) {
-      http.post(Uri.parse("${MyConfig.myurl}/wtms/php/login_worker.php"), body: {
+      http.post(Uri.parse("${MyConfig.myurl}/workmate/php/login_worker.php"), body: {
         "email": email,
         "password": password,
       }).then((response) {
