@@ -1,29 +1,28 @@
-# Workmate
+# 🛠️ Worker Task Completion System – Phase 2
 
-**Workmate** is a cross-platform mobile application developed in Flutter for Assignment 2 (Recovery) of the Mobile Programming course (STIW3014). This project is designed to run on Android, iOS, Web, and Desktop platforms, and includes PHP backend support.
+**Course**: STIWK2114 Mobile Programming  
+**Duration**: 28 May 2025, 8:30 AM – 30 May 2025, 8:30 AM  
+**Total Marks**: 100  
+**Title**: Worker Task Completion System – Phase 2  
 
----
+## 📌 Objective
 
-## 📱 Project Overview
-
-Workmate demonstrates multi-platform development using Flutter and integrates backend services via PHP. This app was created as part of a recovery submission for Assignment 2.
-
----
-
-## 🛠️ Technologies Used
-
-- **Flutter (Dart)**
-- **PHP**
-- **C++ / CMake** (native dependencies)
-- **Cross-platform Targets:**
-  - Android
-  - iOS
-  - Web
-  - Windows
-  - Linux
-  - macOS
+Enhance the Worker Task Management System (WTMS) to allow workers to:
+- View tasks assigned to them.
+- Submit work completion reports.
 
 ---
 
-## 📁 Project Structure
+## ✅ Features
+
+### 1. Task List for Workers
+- After login, workers can view tasks assigned to them from `tbl_works`.
+- Displays task details: ID, title, description, date assigned, due date, and status.
+
+### 2. Work Completion Upload
+- Workers select a task and submit a description of their completed work.
+- Submissions are stored in `tbl_submissions`.
+
+---
+
 
