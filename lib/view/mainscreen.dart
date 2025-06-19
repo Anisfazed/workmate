@@ -1,11 +1,9 @@
-// main_screen.dart
 import 'package:flutter/material.dart';
 import 'package:workmate/model/user.dart';
 import 'package:workmate/view/loginscreen.dart';
 import 'package:workmate/view/tasklistscreen.dart';
 import 'package:workmate/view/historyscreen.dart';
 import 'package:workmate/view/profilescreen.dart';
-import 'package:workmate/view/editsubmission.dart';
 import 'package:workmate/myconfig.dart';
 
 class MainScreen extends StatefulWidget {
@@ -17,7 +15,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _selectedDrawerIndex = -1;
+  int _selectedDrawerIndex = -1; // -1 = Home
 
   final List<Widget> _screens = [];
 
@@ -27,13 +25,13 @@ class _MainScreenState extends State<MainScreen> {
     _screens.addAll([
       TaskListScreen(user: widget.user),
       HistoryScreen(user: widget.user),
-      ProfileScreen(user: widget.user),
+      ProfileScreen(user: widget.user, onProfileUpdated: (User ) {  },),
     ]);
   }
 
   void _onSelectItem(int index) {
     setState(() => _selectedDrawerIndex = index);
-    Navigator.of(context).pop();
+    Navigator.of(context).pop(); // close drawer
   }
 
   Widget _buildHome() {
@@ -46,9 +44,7 @@ class _MainScreenState extends State<MainScreen> {
             CircleAvatar(
               radius: 50,
               backgroundImage: widget.user.userImage.isNotEmpty
-                  ? NetworkImage(
-                      "${MyConfig.myurl}/workmate/assets/images/${widget.user.userImage}",
-                    )
+                  ? NetworkImage("${MyConfig.myurl}/workmate/assets/images/${widget.user.userImage}")
                   : const AssetImage("assets/images/profile.png") as ImageProvider,
             ),
             const SizedBox(height: 20),
@@ -58,10 +54,29 @@ class _MainScreenState extends State<MainScreen> {
             ),
             const SizedBox(height: 10),
             const Text(
-              "Use the menu to manage your tasks, view submissions, or update your profile.",
+              "Use the drawer menu to manage tasks, view history, or update your profile.",
               textAlign: TextAlign.center,
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  void _logout() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => LoginScreen(
+          user: User(
+            userId: '',
+            userName: '',
+            userEmail: '',
+            userPassword: '',
+            userPhone: '',
+            userAddress: '',
+            userImage: '',
+          ),
         ),
       ),
     );
@@ -78,9 +93,9 @@ class _MainScreenState extends State<MainScreen> {
                   ? "Submission History"
                   : _selectedDrawerIndex == 2
                       ? "My Profile"
-                      : "Worker Dashboard",
+                      : "Home",
         ),
-        backgroundColor: const Color.fromARGB(255, 155, 235, 255),
+        backgroundColor: const Color.fromARGB(255, 156, 182, 255),
       ),
       drawer: Drawer(
         child: ListView(
@@ -91,20 +106,12 @@ class _MainScreenState extends State<MainScreen> {
               accountEmail: Text(widget.user.userEmail),
               currentAccountPicture: CircleAvatar(
                 backgroundImage: widget.user.userImage.isNotEmpty
-                    ? NetworkImage(
-                        "${MyConfig.myurl}/workmate/assets/images/${widget.user.userImage}",
-                      )
+                    ? NetworkImage("${MyConfig.myurl}/workmate/assets/images/${widget.user.userImage}")
                     : const AssetImage("assets/images/profile.png") as ImageProvider,
               ),
               decoration: const BoxDecoration(
-                color: Color.fromARGB(255, 155, 235, 255),
+                color: Color.fromARGB(255, 156, 182, 255),
               ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text('Home'),
-              selected: _selectedDrawerIndex == -1,
-              onTap: () => _onSelectItem(-1),
             ),
             ListTile(
               leading: const Icon(Icons.task),
@@ -114,7 +121,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.history),
-              title: const Text('Submission History'),
+              title: const Text('History'),
               selected: _selectedDrawerIndex == 1,
               onTap: () => _onSelectItem(1),
             ),
@@ -124,35 +131,30 @@ class _MainScreenState extends State<MainScreen> {
               selected: _selectedDrawerIndex == 2,
               onTap: () => _onSelectItem(2),
             ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Logout'),
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => LoginScreen(
-                      user: User(
-                        userId: '',
-                        userName: '',
-                        userEmail: '',
-                        userPassword: '',
-                        userPhone: '',
-                        userAddress: '',
-                        userImage: '',
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
           ],
         ),
       ),
-      body: _selectedDrawerIndex == -1
-          ? _buildHome()
-          : _screens[_selectedDrawerIndex],
+      body: _selectedDrawerIndex == -1 ? _buildHome() : _screens[_selectedDrawerIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 0,
+        onTap: (index) {
+          if (index == 0) {
+            setState(() => _selectedDrawerIndex = -1); // switch to Home
+          } else if (index == 1) {
+            _logout(); // logout when second item tapped
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: "Home",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.logout),
+            label: "Logout",
+          ),
+        ],
+      ),
     );
   }
 }

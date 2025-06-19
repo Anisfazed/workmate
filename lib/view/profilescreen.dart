@@ -6,11 +6,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:workmate/model/user.dart';
 import 'package:workmate/myconfig.dart';
-import 'package:workmate/view/mainscreen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final User user;
-  const ProfileScreen({super.key, required this.user});
+  final void Function(User) onProfileUpdated;
+  const ProfileScreen({super.key, required this.user, required this.onProfileUpdated});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -36,10 +36,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Profile"),
-        backgroundColor: const Color.fromARGB(255, 155, 235, 255),
-      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Card(
@@ -62,6 +58,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
+                TextField(
+                  controller: TextEditingController(text: widget.user.userId),
+                  readOnly: true,
+                  decoration: const InputDecoration(labelText: "User ID"),
+                ),
+                const SizedBox(height: 10),
                 TextField(
                   controller: fullNameController,
                   decoration: const InputDecoration(labelText: "Full Name"),
@@ -165,14 +167,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     String phone = phoneController.text;
     String address = addressController.text;
     String imageBase64 = "";
+    String imageName = widget.user.userImage;
 
-    if (_image != null) {
+    if (kIsWeb && webImageBytes != null) {
+      imageBase64 = base64Encode(webImageBytes!);
+      imageName = "";
+    } else if (_image != null) {
       imageBase64 = base64Encode(_image!.readAsBytesSync());
+      imageName = "";
     }
 
     try {
       final response = await http.post(
-        Uri.parse("${MyConfig.myurl}/workmate/php/update_profile.php"),
+        Uri.parse("${MyConfig.myurl}/workmate/php/update_worker.php"),
         body: {
           "worker_id": widget.user.userId,
           "full_name": fullName,
@@ -185,25 +192,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (response.statusCode == 200) {
         final jsondata = jsonDecode(response.body);
         if (jsondata['status'] == 'success') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Profile updated successfully")),
+          final updatedUser = User(
+            userId: widget.user.userId,
+            userName: fullName,
+            userEmail: widget.user.userEmail,
+            userPassword: widget.user.userPassword,
+            userPhone: phone,
+            userAddress: address,
+            userImage: jsondata['image'] ?? imageName,
           );
 
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MainScreen(
-                user: User(
-                  userId: widget.user.userId,
-                  userName: fullName,
-                  userEmail: widget.user.userEmail,
-                  userPassword: widget.user.userPassword,
-                  userPhone: phone,
-                  userAddress: address,
-                  userImage: jsondata['image'] ?? widget.user.userImage,
-                ),
-              ),
-            ),
+          widget.onProfileUpdated(updatedUser);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Profile updated successfully")),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(

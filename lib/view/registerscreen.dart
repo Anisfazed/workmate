@@ -256,8 +256,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (response.statusCode == 200) {
         if (jsondata['status'] == 'success') {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Success!")),
-          );
+          const SnackBar(
+            content: Text("Success!"),
+            backgroundColor: Colors.green,
+          ),
+        );
+
           Navigator.of(context).pop();
           Navigator.pushReplacement(
             context,

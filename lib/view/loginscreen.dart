@@ -34,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Login Screen"),
-        backgroundColor: const Color.fromARGB(255, 155, 235, 255),
+        backgroundColor: const Color.fromARGB(255, 156, 182, 255),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

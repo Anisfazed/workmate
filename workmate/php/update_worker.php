@@ -16,14 +16,23 @@ if (empty($worker_id) || empty($full_name)) {
 
 // If image is provided, save it
 if (!empty($image_base64)) {
-    $image_filename = $worker_id . "_profile.png"; // unique name based on ID
+    $image_filename = $worker_id . "_profile.png";
     $image_path = "../assets/images/" . $image_filename;
-    file_put_contents($image_path, base64_decode($image_base64));
+
+    if (!file_put_contents($image_path, base64_decode($image_base64))) {
+        echo json_encode(["status" => "failed", "message" => "Image upload failed"]);
+        exit();
+    }
 }
 
-// Build SQL update statement
+// Escape strings
+$full_name = $conn->real_escape_string($full_name);
+$phone = $conn->real_escape_string($phone);
+$address = $conn->real_escape_string($address);
+
+// Build SQL
 $sql = "UPDATE tbl_users SET 
-    full_name = '$full_name',
+    name = '$full_name',
     phone = '$phone',
     address = '$address'";
 
@@ -31,9 +40,9 @@ if (!empty($image_filename)) {
     $sql .= ", image = '$image_filename'";
 }
 
-$sql .= " WHERE worker_id = '$worker_id'";
+$sql .= " WHERE user_id = '$worker_id'";
 
-// Execute update
+// Execute
 if ($conn->query($sql) === TRUE) {
     echo json_encode([
         "status" => "success",
@@ -41,6 +50,6 @@ if ($conn->query($sql) === TRUE) {
         "image" => $image_filename
     ]);
 } else {
-    echo json_encode(["status" => "failed", "message" => "Update failed"]);
+    echo json_encode(["status" => "failed", "message" => $conn->error]);
 }
 ?>
