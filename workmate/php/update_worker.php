@@ -1,38 +1,46 @@
 <?php
-include_once("dbconnect.php"); // ensure connection
+include_once("dbconnect.php");
 
-$email = $_POST['email'] ?? '';
+$worker_id = $_POST['worker_id'] ?? '';
 $full_name = $_POST['full_name'] ?? '';
 $phone = $_POST['phone'] ?? '';
 $address = $_POST['address'] ?? '';
+$image_base64 = $_POST['image'] ?? '';
+$image_filename = '';
 
 // Basic validation
-if (empty($email) || empty($full_name)) {
+if (empty($worker_id) || empty($full_name)) {
     echo json_encode(["status" => "failed", "message" => "Missing required fields"]);
     exit();
 }
 
-// Find the worker ID using the provided email
-$sql = "SELECT worker_id FROM workers WHERE email = '$email'";
-$result = mysqli_query($conn, $sql);
-$row = mysqli_fetch_assoc($result);
+// If image is provided, save it
+if (!empty($image_base64)) {
+    $image_filename = $worker_id . "_profile.png"; // unique name based on ID
+    $image_path = "../assets/images/" . $image_filename;
+    file_put_contents($image_path, base64_decode($image_base64));
+}
 
-if ($row) {
-    $worker_id = $row['worker_id'];
+// Build SQL update statement
+$sql = "UPDATE tbl_users SET 
+    full_name = '$full_name',
+    phone = '$phone',
+    address = '$address'";
 
-    // Corrected column name from `name` to `full_name`
-    $update_sql = "UPDATE workers SET full_name = '$full_name', phone = '$phone', address = '$address' WHERE email = '$email'";
-    
-    if (mysqli_query($conn, $update_sql)) {
-        echo json_encode([
-            "status" => "success",
-            "worker_id" => $worker_id,
-            "message" => "Profile updated successfully"
-        ]);
-    } else {
-        echo json_encode(["status" => "failed", "message" => "Update failed"]);
-    }
+if (!empty($image_filename)) {
+    $sql .= ", image = '$image_filename'";
+}
+
+$sql .= " WHERE worker_id = '$worker_id'";
+
+// Execute update
+if ($conn->query($sql) === TRUE) {
+    echo json_encode([
+        "status" => "success",
+        "worker_id" => $worker_id,
+        "image" => $image_filename
+    ]);
 } else {
-    echo json_encode(["status" => "failed", "message" => "User not found"]);
+    echo json_encode(["status" => "failed", "message" => "Update failed"]);
 }
 ?>

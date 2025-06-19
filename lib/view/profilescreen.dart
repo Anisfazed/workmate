@@ -1,14 +1,15 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:workmate/model/user.dart';
-import 'package:workmate/view/loginscreen.dart';
 import 'package:workmate/myconfig.dart';
 import 'package:workmate/view/mainscreen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final User user;
-
   const ProfileScreen({super.key, required this.user});
 
   @override
@@ -20,6 +21,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late TextEditingController emailController;
   late TextEditingController phoneController;
   late TextEditingController addressController;
+  File? _image;
+  Uint8List? webImageBytes;
 
   @override
   void initState() {
@@ -34,24 +37,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Profile Screen"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => LoginScreen(user: widget.user)),
-              );
-            },
-          ),
-        ],
+        title: const Text("Profile"),
+        backgroundColor: const Color.fromARGB(255, 155, 235, 255),
       ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        color: const Color(0xFFF4F6F7),
-        padding: const EdgeInsets.all(20.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
         child: Card(
           elevation: 5,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
@@ -60,9 +50,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const CircleAvatar(
-                  radius: 50,
-                  backgroundImage: AssetImage("assets/images/profile.png"),
+                GestureDetector(
+                  onTap: showSelectionDialog,
+                  child: CircleAvatar(
+                    radius: 60,
+                    backgroundImage: _image != null
+                        ? _buildProfileImage()
+                        : widget.user.userImage.isNotEmpty
+                            ? NetworkImage("${MyConfig.myurl}/workmate/assets/images/${widget.user.userImage}")
+                            : const AssetImage("assets/images/profile.png") as ImageProvider,
+                  ),
                 ),
                 const SizedBox(height: 20),
                 TextField(
@@ -98,25 +95,96 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  void showSelectionDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Select from"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _selectFromCamera();
+                  },
+                  child: const Text("From Camera")),
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _selectFromGallery();
+                  },
+                  child: const Text("From Gallery")),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _selectFromCamera() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(
+      source: kIsWeb ? ImageSource.gallery : ImageSource.camera,
+      maxHeight: 800,
+      maxWidth: 800,
+    );
+    if (pickedFile != null) {
+      _image = File(pickedFile.path);
+      if (kIsWeb) webImageBytes = await pickedFile.readAsBytes();
+      setState(() {});
+    }
+  }
+
+  Future<void> _selectFromGallery() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxHeight: 800,
+      maxWidth: 800,
+    );
+    if (pickedFile != null) {
+      _image = File(pickedFile.path);
+      if (kIsWeb) webImageBytes = await pickedFile.readAsBytes();
+      setState(() {});
+    }
+  }
+
+  ImageProvider _buildProfileImage() {
+    if (kIsWeb && webImageBytes != null) {
+      return MemoryImage(webImageBytes!);
+    } else if (_image != null) {
+      return FileImage(_image!);
+    }
+    return const AssetImage('assets/images/profile.png');
+  }
+
   void updateProfile() async {
+    String fullName = fullNameController.text;
+    String phone = phoneController.text;
+    String address = addressController.text;
+    String imageBase64 = "";
+
+    if (_image != null) {
+      imageBase64 = base64Encode(_image!.readAsBytesSync());
+    }
+
     try {
       final response = await http.post(
-        Uri.parse("${MyConfig.myurl}/workmate/php/update_worker.php"),
+        Uri.parse("${MyConfig.myurl}/workmate/php/update_profile.php"),
         body: {
-          "email": emailController.text, // Use email to identify the user
-          "full_name": fullNameController.text,
-          "phone": phoneController.text,
-          "address": addressController.text,
+          "worker_id": widget.user.userId,
+          "full_name": fullName,
+          "phone": phone,
+          "address": address,
+          "image": imageBase64,
         },
       );
 
-      if (response.statusCode == 200 && response.body.contains('status')) {
+      if (response.statusCode == 200) {
         final jsondata = jsonDecode(response.body);
-
         if (jsondata['status'] == 'success') {
-          // Use the returned worker_id or fallback to current one
-          String updatedWorkerId = jsondata['worker_id'] ?? widget.user.userId;
-
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Profile updated successfully")),
           );
@@ -126,12 +194,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             MaterialPageRoute(
               builder: (context) => MainScreen(
                 user: User(
-                  userId: updatedWorkerId,
-                  userName: fullNameController.text,
+                  userId: widget.user.userId,
+                  userName: fullName,
                   userEmail: widget.user.userEmail,
                   userPassword: widget.user.userPassword,
-                  userPhone: phoneController.text,
-                  userAddress: addressController.text,
+                  userPhone: phone,
+                  userAddress: address,
+                  userImage: jsondata['image'] ?? widget.user.userImage,
                 ),
               ),
             ),
@@ -143,13 +212,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Invalid response from server")),
+          const SnackBar(content: Text("Server error")),
         );
       }
-    } catch (error) {
-      print("HTTP error: $error");
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Connection failed")),
+        SnackBar(content: Text("Error: $e")),
       );
     }
   }

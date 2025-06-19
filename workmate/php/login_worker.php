@@ -17,7 +17,7 @@ $email = $_POST['email'];
 $password = sha1($_POST['password']);
 
 // SQL query to authenticate user
-$sqllogin = "SELECT * FROM `workers` WHERE email = '$email' AND password = '$password'";
+$sqllogin = "SELECT * FROM `tbl_users` WHERE email = '$email' AND password = '$password'";
 $result = $conn->query($sqllogin);
 
 // Build response

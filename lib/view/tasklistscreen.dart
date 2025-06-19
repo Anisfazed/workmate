@@ -73,11 +73,6 @@ class _TaskListScreenState extends State<TaskListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Tasks', style: TextStyle(color: Colors.black)),
-        backgroundColor: const Color.fromARGB(255, 155, 235, 255),
-        iconTheme: const IconThemeData(color: Colors.black),
-      ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : tasks.isEmpty

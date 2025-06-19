@@ -1,10 +1,7 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
+import 'package:lottie/lottie.dart';
 import 'package:workmate/model/user.dart';
-import 'package:workmate/myconfig.dart';
-import 'package:workmate/view/mainscreen.dart';
+import 'package:workmate/view/loginscreen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,86 +10,57 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+  late AnimationController _logoController;
+  late Animation<double> _logoAnimation;
+
   @override
   void initState() {
     super.initState();
+    _logoController = AnimationController(duration: const Duration(milliseconds: 1200), vsync: this);
+    _logoAnimation = CurvedAnimation(parent: _logoController, curve: Curves.easeInOut);
+    _logoController.forward();
+
     Future.delayed(const Duration(seconds: 3), () {
-      loadUserCredentials();
+      User guestUser = User(userId: "0", userName: "Guest", userEmail: "", userPhone: "", userAddress: "", userImage: "", userPassword: '');
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen(user: guestUser)));
     });
+  }
+
+  @override
+  void dispose() {
+    _logoController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors:[
-              const Color.fromARGB(255, 185, 212, 245), 
-              const Color.fromARGB(255, 235, 235, 235)],
+            colors: [Color.fromARGB(255, 185, 212, 245), Color.fromARGB(255, 235, 235, 235)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-          )
+          ),
         ),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset("assets/images/logo.png", scale: 3.5),
-              const CircularProgressIndicator(
-                backgroundColor: Color.fromARGB(255, 0, 0, 0),
-                valueColor: AlwaysStoppedAnimation<Color>(Color.fromARGB(255, 255, 255, 255)),
-              )
+              ScaleTransition(
+                scale: _logoAnimation,
+                child: FadeTransition(
+                  opacity: _logoAnimation,
+                  child: Image.asset("assets/images/logo.png", scale: 3.5),
+                ),
+              ),
+              const SizedBox(height: 40),
+              Lottie.asset('assets/lottie/loading.json', width: 100, height: 100),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Future<void> loadUserCredentials() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String email = prefs.getString('email') ?? '';
-    String password = prefs.getString('pass') ?? '';
-    bool rem = prefs.getBool('remember') ?? false;
-
-    if (rem == true) {
-      http.post(Uri.parse("${MyConfig.myurl}/workmate/php/login_worker.php"), body: {
-        "email": email,
-        "password": password,
-      }).then((response) {
-        if (response.statusCode == 200) {
-          var jsondata = json.decode(response.body);
-          if (jsondata['status'] == 'success') {
-            var userdata = jsondata['data'];
-            User user = User.fromJson(userdata[0]);
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => MainScreen(user: user)),
-            );
-          } else {
-            _navigateAsGuest();
-          }
-        }
-      });
-    } else {
-      _navigateAsGuest();
-    }
-  }
-
-  void _navigateAsGuest() {
-    User user = User(
-      userId: "0",
-      userName: "Guest",
-      userEmail: "",
-      userPhone: "",
-      userAddress: "",
-      userPassword: "",
-    );
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => MainScreen(user: user)),
     );
   }
 }
