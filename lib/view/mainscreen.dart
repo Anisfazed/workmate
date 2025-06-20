@@ -15,23 +15,19 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _selectedDrawerIndex = -1; // -1 = Home
-
-  final List<Widget> _screens = [];
+  late User currentUser;
+  int _selectedDrawerIndex = -1;
 
   @override
   void initState() {
     super.initState();
-    _screens.addAll([
-      TaskListScreen(user: widget.user),
-      HistoryScreen(user: widget.user),
-      ProfileScreen(user: widget.user, onProfileUpdated: (User ) {  },),
-    ]);
+    currentUser = widget.user;
   }
 
-  void _onSelectItem(int index) {
-    setState(() => _selectedDrawerIndex = index);
-    Navigator.of(context).pop(); // close drawer
+  void _updateUser(User updatedUser) {
+    setState(() {
+      currentUser = updatedUser;
+    });
   }
 
   Widget _buildHome() {
@@ -43,19 +39,23 @@ class _MainScreenState extends State<MainScreen> {
           children: [
             CircleAvatar(
               radius: 50,
-              backgroundImage: widget.user.userImage.isNotEmpty
-                  ? NetworkImage("${MyConfig.myurl}/workmate/assets/images/${widget.user.userImage}")
+              backgroundImage: currentUser.userImage.isNotEmpty
+                  ? NetworkImage("${MyConfig.myurl}/workmate/assets/images/${currentUser.userImage}?v=${DateTime.now().millisecondsSinceEpoch}")
                   : const AssetImage("assets/images/profile.png") as ImageProvider,
             ),
             const SizedBox(height: 20),
             Text(
-              "Welcome, ${widget.user.userName}!",
+              "Welcome, ${currentUser.userName}!",
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-            const Text(
-              "Use the drawer menu to manage tasks, view history, or update your profile.",
-              textAlign: TextAlign.center,
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                "Use the drawer menu to manage tasks, view history, or update your profile.",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16),
+              ),
             ),
           ],
         ),
@@ -84,6 +84,12 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screens = [
+      TaskListScreen(user: currentUser),
+      HistoryScreen(user: currentUser),
+      ProfileScreen(user: currentUser, onProfileUpdated: _updateUser),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -103,70 +109,78 @@ class _MainScreenState extends State<MainScreen> {
           children: [
             UserAccountsDrawerHeader(
               accountName: Text(
-                widget.user.userName,
-                style: const TextStyle(color: Colors.black),
+                currentUser.userName,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
               accountEmail: Text(
-                widget.user.userEmail,
+                currentUser.userEmail,
                 style: const TextStyle(color: Colors.black),
               ),
               currentAccountPicture: CircleAvatar(
-                backgroundImage: widget.user.userImage.isNotEmpty
-                    ? NetworkImage("${MyConfig.myurl}/workmate/assets/images/${widget.user.userImage}")
+                radius: 30,
+                backgroundImage: currentUser.userImage.isNotEmpty
+                    ? NetworkImage("${MyConfig.myurl}/workmate/assets/images/${currentUser.userImage}?v=${DateTime.now().millisecondsSinceEpoch}")
                     : const AssetImage("assets/images/profile.png") as ImageProvider,
               ),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                colors: [
-                  Color.fromARGB(255, 247, 215, 73),
-                  Color.fromARGB(255, 255, 255, 255),
-                  Color.fromARGB(255, 173, 211, 255),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+                  colors: [
+                    Color.fromARGB(255, 247, 215, 73),
+                    Color.fromARGB(255, 255, 255, 255),
+                    Color.fromARGB(255, 173, 211, 255),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
               ),
             ),
             ListTile(
               leading: const Icon(Icons.task),
               title: const Text('Tasks'),
               selected: _selectedDrawerIndex == 0,
-              onTap: () => _onSelectItem(0),
+              onTap: () {
+                setState(() => _selectedDrawerIndex = 0);
+                Navigator.pop(context);
+              },
             ),
             ListTile(
               leading: const Icon(Icons.history),
               title: const Text('History'),
               selected: _selectedDrawerIndex == 1,
-              onTap: () => _onSelectItem(1),
+              onTap: () {
+                setState(() => _selectedDrawerIndex = 1);
+                Navigator.pop(context);
+              },
             ),
             ListTile(
               leading: const Icon(Icons.person),
               title: const Text('Profile'),
               selected: _selectedDrawerIndex == 2,
-              onTap: () => _onSelectItem(2),
+              onTap: () {
+                setState(() => _selectedDrawerIndex = 2);
+                Navigator.pop(context);
+              },
             ),
           ],
         ),
       ),
-      body: _selectedDrawerIndex == -1 ? _buildHome() : _screens[_selectedDrawerIndex],
+      body: _selectedDrawerIndex == -1 ? _buildHome() : screens[_selectedDrawerIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 0,
         onTap: (index) {
           if (index == 0) {
-            setState(() => _selectedDrawerIndex = -1); // switch to Home
+            setState(() => _selectedDrawerIndex = -1); // Home
           } else if (index == 1) {
-            _logout(); // logout when second item tapped
+            _logout(); // Logout
           }
         },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.logout),
-            label: "Logout",
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.logout), label: "Logout"),
         ],
       ),
     );
