@@ -32,9 +32,6 @@ This final phase focuses on enhancing usability and ensuring smoother user exper
 - **🚪 Logout Functionality**
   - Secure logout returning to the login screen.
 
-## 📸 Screenshots
-> *(Insert screenshots here for: Home, Task List, Submission History, Profile View, and Update Profile)*
-
 ## 🛠️ Tech Stack
 - **Flutter** – UI development
 - **PHP & MySQL** – Backend and database
