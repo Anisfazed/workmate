@@ -1,40 +1,44 @@
-# 📱 WorkMate – Worker Task Management System (WTMS)
-**STIWK2114 Mobile Programming – Final Assignment (Phase 3)**  
-WorkMate is a Flutter-based mobile application designed to streamline worker task management. This app allows workers to view assigned tasks, manage their personal profile, and track their submission history in an intuitive and user-friendly interface.
+# 📱 WorkMate – Worker Task Management System (Phase 3)
 
-## 📦 Phase 3 Deliverables
-This final phase focuses on enhancing usability and ensuring smoother user experience through profile management and improved navigation.
+### STIWK2114 Mobile Programming Final Project – By Nur Anis Athirah
 
-### ✅ Features Implemented
+WorkMate is a Flutter-based mobile app designed to help workers manage daily tasks, track their submission history, and update their personal profile efficiently. This project completes **Phase 3** of the course by adding profile viewing, updating, and improved navigation.
 
-- **🏠 Home Dashboard**
-  - Integrated **Drawer** and **BottomNavigationBar** for seamless navigation.
+---
 
-- **🗂️ Task List View**
-  - Displays assigned tasks clearly and efficiently.
+## 🔧 Setup Instructions
 
-- **📜 Submission History**
-  - Workers can view a history of all their past task submissions.
+ Clone the Project
 
-- **👤 Profile View (Read-Only)**
-  - Displays user details such as full name, email, phone, and address.
+git clone https://github.com/Anisfazed/workmate.git
 
-- **✏️ Profile Update Screen**
-  - Editable fields for:
-    - Full Name
-    - Phone Number
-    - Home Address
-    - Profile Image
+cd workmate
 
-- **🔄 Auto Refresh on Profile Update**
-  - Automatically reflects updated profile information without requiring manual refresh or logout.
+Open lib/myconfig.dart and replace the URL with your actual PHP backend server:
+class MyConfig {
+  static const String myurl = "https://yourserver.com"; // <-- change this!
+}
 
-- **🚪 Logout Functionality**
-  - Secure logout returning to the login screen.
+Install Dependencies
+flutter pub get
+---
 
-## 🛠️ Tech Stack
-- **Flutter** – UI development
-- **PHP & MySQL** – Backend and database
-- **HTTP** – API requests for data interaction
-- **Image Picker** – Profile image selection
+Dummy Data for Testing
+
+INSERT INTO `tbl_users` (`user_id`, `name`, `email`, `password`, `phone`, `address`, `image`) VALUES
+(1, 'Chaerin Lee', 'chaechae@gmail.com', '7c4a8d09ca3762af61e59520943dc26494f8941b', '0114045510', 'Cyberjaya', '1_profile.png'),
+(2, 'Anas Huffaz', 'anas@gmail.com', '7c4a8d09ca3762af61e59520943dc26494f8941b', '01140752066', 'Klang', '2_profile.png'),
+(3, 'Nur Anis Athirah', 'anis@gmail.com', '7c4a8d09ca3762af61e59520943dc26494f8941b', '01140752066', 'Kepala Batas,Penang', 'anis@gmail.com.png');
+
+---
+Images are uploaded as Base64 and saved to assets/images/.
+----
+
+📝 Notes
+Profile image updates use timestamped URLs to prevent browser cache.
+
+App works across Android, iOS, and Flutter Web.
+
+Requires internet access for image upload and profile changes.
+
 
