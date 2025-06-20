@@ -102,15 +102,29 @@ class _MainScreenState extends State<MainScreen> {
           padding: EdgeInsets.zero,
           children: [
             UserAccountsDrawerHeader(
-              accountName: Text(widget.user.userName),
-              accountEmail: Text(widget.user.userEmail),
+              accountName: Text(
+                widget.user.userName,
+                style: const TextStyle(color: Colors.black),
+              ),
+              accountEmail: Text(
+                widget.user.userEmail,
+                style: const TextStyle(color: Colors.black),
+              ),
               currentAccountPicture: CircleAvatar(
                 backgroundImage: widget.user.userImage.isNotEmpty
                     ? NetworkImage("${MyConfig.myurl}/workmate/assets/images/${widget.user.userImage}")
                     : const AssetImage("assets/images/profile.png") as ImageProvider,
               ),
               decoration: const BoxDecoration(
-                color: Color.fromARGB(255, 156, 182, 255),
+                gradient: LinearGradient(
+                colors: [
+                  Color.fromARGB(255, 247, 215, 73),
+                  Color.fromARGB(255, 255, 255, 255),
+                  Color.fromARGB(255, 173, 211, 255),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
               ),
             ),
             ListTile(

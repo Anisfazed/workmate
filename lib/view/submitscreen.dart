@@ -85,7 +85,7 @@ class _SubmitScreenState extends State<SubmitScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Submit Task', style: TextStyle(color: Color.fromARGB(255, 0, 0, 0))),
-        backgroundColor:const Color.fromARGB(255, 155, 235, 255),
+        backgroundColor:const Color.fromARGB(255, 156, 182, 255),
         iconTheme: const IconThemeData(color: Color.fromARGB(255, 0, 0, 0)),
       ),
       body: SingleChildScrollView(
@@ -131,7 +131,7 @@ class _SubmitScreenState extends State<SubmitScreen> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  backgroundColor: const Color.fromARGB(255, 175, 208, 255),
+                  backgroundColor: const Color(0xFF4A6CF7),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
                 onPressed: _isSubmitting ? null : _submitTask,
@@ -139,7 +139,7 @@ class _SubmitScreenState extends State<SubmitScreen> {
                     ? const CircularProgressIndicator(color: Colors.white)
                     : const Text(
                         'Submit',
-                        style: TextStyle(fontSize: 16, color: Color.fromARGB(255, 0, 0, 0)),
+                        style: TextStyle(fontSize: 16, color: Color.fromARGB(255, 255, 255, 255)),
                       ),
               ),
             ),

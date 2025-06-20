@@ -170,7 +170,8 @@ class _HistoryScreenState extends State<HistoryScreen>
                                             icon: const Icon(Icons.edit_note),
                                             label: const Text("Edit Submission"),
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: const Color.fromARGB(255, 156, 182, 255),
+                                              backgroundColor: const Color(0xFF6D87E0),
+                                              foregroundColor: Colors.white,
                                             ),
                                           ),
                                         )

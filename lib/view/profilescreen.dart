@@ -23,6 +23,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late TextEditingController addressController;
   File? _image;
   Uint8List? webImageBytes;
+  bool _isUpdating = false;
 
   @override
   void initState() {
@@ -61,33 +62,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 TextField(
                   controller: TextEditingController(text: widget.user.userId),
                   readOnly: true,
-                  decoration: const InputDecoration(labelText: "User ID"),
+                  decoration: const InputDecoration(labelText: "User ID", prefixIcon: Icon(Icons.perm_identity)),
                 ),
                 const SizedBox(height: 10),
                 TextField(
                   controller: fullNameController,
-                  decoration: const InputDecoration(labelText: "Full Name"),
+                  decoration: const InputDecoration(labelText: "Full Name", prefixIcon: Icon(Icons.person)),
                 ),
                 const SizedBox(height: 10),
                 TextField(
                   controller: emailController,
                   readOnly: true,
-                  decoration: const InputDecoration(labelText: "Email"),
+                  decoration: const InputDecoration(labelText: "Email", prefixIcon: Icon(Icons.email)),
                 ),
                 const SizedBox(height: 10),
                 TextField(
                   controller: phoneController,
-                  decoration: const InputDecoration(labelText: "Phone"),
+                  decoration: const InputDecoration(labelText: "Phone", prefixIcon: Icon(Icons.phone)),
                 ),
                 const SizedBox(height: 10),
                 TextField(
                   controller: addressController,
-                  decoration: const InputDecoration(labelText: "Address"),
+                  decoration: const InputDecoration(labelText: "Address", prefixIcon: Icon(Icons.location_on)),
                 ),
                 const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: updateProfile,
-                  child: const Text("Update Profile"),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _isUpdating ? null : updateProfile,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4A6CF7),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: _isUpdating
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          )
+                        : const Text("Update Profile"),
+                  ),
                 ),
               ],
             ),
@@ -98,26 +114,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void showSelectionDialog() {
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Select from"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Wrap(
             children: [
-              TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    _selectFromCamera();
-                  },
-                  child: const Text("From Camera")),
-              TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    _selectFromGallery();
-                  },
-                  child: const Text("From Gallery")),
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text("From Camera"),
+                onTap: () {
+                  Navigator.pop(context);
+                  _selectFromCamera();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text("From Gallery"),
+                onTap: () {
+                  Navigator.pop(context);
+                  _selectFromGallery();
+                },
+              ),
             ],
           ),
         );
@@ -163,9 +185,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void updateProfile() async {
-    String fullName = fullNameController.text;
-    String phone = phoneController.text;
-    String address = addressController.text;
+    String fullName = fullNameController.text.trim();
+    String phone = phoneController.text.trim();
+    String address = addressController.text.trim();
+
+    if (fullName.isEmpty || phone.isEmpty || address.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please fill in all the fields"),
+          backgroundColor: Color(0xFFF44336),
+        ),
+      );
+      return;
+    }
+
+    final shouldUpdate = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Confirm Update"),
+        content: const Text("Are you sure you want to update your profile?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF4A6CF7),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text("Confirm"),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldUpdate != true) return;
+
+    setState(() => _isUpdating = true);
+
     String imageBase64 = "";
     String imageName = widget.user.userImage;
 
@@ -205,22 +264,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
           widget.onProfileUpdated(updatedUser);
 
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Profile updated successfully")),
+            const SnackBar(
+              content: Text("Profile updated successfully"),
+              backgroundColor: Color(0xFF4CAF50),
+            ),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(jsondata['message'] ?? "Update failed")),
+            SnackBar(
+              content: Text(jsondata['message'] ?? "Update failed"),
+              backgroundColor: Color(0xFFF44336),
+            ),
           );
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Server error")),
+          const SnackBar(
+            content: Text("Server error"),
+            backgroundColor: Color(0xFFF44336),
+          ),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
+        SnackBar(
+          content: Text("Error: $e"),
+          backgroundColor: const Color(0xFFF44336),
+        ),
       );
+    } finally {
+      setState(() => _isUpdating = false);
     }
   }
 }

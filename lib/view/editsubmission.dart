@@ -40,7 +40,9 @@ class _EditSubmissionScreenState extends State<EditSubmissionScreen> {
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 151, 196, 255)),
+            style: ElevatedButton.styleFrom( 
+              backgroundColor: const Color(0xFF4A6CF7),
+              foregroundColor: Colors.white,),
             child: const Text("Yes, Update"),
           ),
         ],
@@ -68,16 +70,25 @@ class _EditSubmissionScreenState extends State<EditSubmissionScreen> {
       if (data['status'] == 'success') {
         Navigator.pop(context, true); // Notify previous screen
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('✅ Submission updated successfully')),
+          const SnackBar(
+            content: Text('✅ Submission updated successfully'),
+            backgroundColor: Colors.green,
+          ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('❌ Failed: ${data['message']}')),
+          SnackBar(
+            content: Text('❌ Failed: ${data['message']}'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('⚠️ Error: $e')),
+        SnackBar(
+          content: Text('⚠️ Error: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     } finally {
       setState(() => _isSaving = false);
@@ -102,6 +113,7 @@ class _EditSubmissionScreenState extends State<EditSubmissionScreen> {
             padding: const EdgeInsets.all(20),
             child: Form(
               key: _formKey,
+              onChanged: () => setState(() {}),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -136,7 +148,9 @@ class _EditSubmissionScreenState extends State<EditSubmissionScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: _isSaving ? null : _confirmAndUpdate,
+                      onPressed: (_isSaving || _submissionController.text.trim() == widget.submission['submission_text'])
+                          ? null
+                          : _confirmAndUpdate,
                       icon: _isSaving
                           ? const SizedBox(
                               width: 20,

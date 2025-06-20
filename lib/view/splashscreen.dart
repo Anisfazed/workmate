@@ -24,7 +24,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     _logoAnimation = CurvedAnimation(parent: _logoController, curve: Curves.easeOutBack);
     _logoController.forward();
 
-    Future.delayed(const Duration(seconds: 4), () {
+    Future.delayed(const Duration(seconds: 5), () {
       User guestUser = User(
         userId: "0",
         userName: "Guest",
@@ -56,8 +56,9 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFFB3D0F2),
-              Color(0xFFF1F3F5),
+                 Color.fromARGB(255, 247, 215, 73),
+                 Color.fromARGB(255, 255, 255, 255),
+                 Color.fromARGB(255, 173, 211, 255),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -90,7 +91,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Color.fromARGB(136, 0, 0, 0),
+                  color: Color.fromARGB(134, 0, 0, 0),
                 ),
               ),
             ],
