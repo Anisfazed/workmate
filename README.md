@@ -1,20 +1,43 @@
-STIWK2114 Mobile Programming – Final Assignment (Phase 3)
-WorkMate is a Flutter-based mobile app that enables workers to manage tasks, view their submission history, and update personal profiles efficiently. This final phase focuses on refining the user experience and enhancing profile management features.
+# 📱 WorkMate – Worker Task Management System (WTMS)
+**STIWK2114 Mobile Programming – Final Assignment (Phase 3)**  
+WorkMate is a Flutter-based mobile application designed to streamline worker task management. This app allows workers to view assigned tasks, manage their personal profile, and track their submission history in an intuitive and user-friendly interface.
 
-📌 Features Implemented (Phase 3)
-✅ Home Dashboard with Drawer + BottomNavigationBar
+## 📦 Phase 3 Deliverables
+This final phase focuses on enhancing usability and ensuring smoother user experience through profile management and improved navigation.
 
-✅ Task List View
+### ✅ Features Implemented
 
-✅ Submission History
+- **🏠 Home Dashboard**
+  - Integrated **Drawer** and **BottomNavigationBar** for seamless navigation.
 
-✅ Profile View (Read-Only)
+- **🗂️ Task List View**
+  - Displays assigned tasks clearly and efficiently.
 
-✅ Profile Update Screen (Edit name, phone, address, image)
+- **📜 Submission History**
+  - Workers can view a history of all their past task submissions.
 
-✅ Profile Auto Refresh after update
+- **👤 Profile View (Read-Only)**
+  - Displays user details such as full name, email, phone, and address.
 
-✅ Logout Functionality
+- **✏️ Profile Update Screen**
+  - Editable fields for:
+    - Full Name
+    - Phone Number
+    - Home Address
+    - Profile Image
 
+- **🔄 Auto Refresh on Profile Update**
+  - Automatically reflects updated profile information without requiring manual refresh or logout.
 
-Demo Video: https://youtu.be/O8UpuDvV430
+- **🚪 Logout Functionality**
+  - Secure logout returning to the login screen.
+
+## 📸 Screenshots
+> *(Insert screenshots here for: Home, Task List, Submission History, Profile View, and Update Profile)*
+
+## 🛠️ Tech Stack
+- **Flutter** – UI development
+- **PHP & MySQL** – Backend and database
+- **HTTP** – API requests for data interaction
+- **Image Picker** – Profile image selection
+
